@@ -20,6 +20,14 @@ namespace VideoGallery
     {
         public static void Main(string[] args)
         {
+            Console.WriteLine("应用正在启动中，请稍后...");
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+            Thread.Sleep(new Random().Next(8 * 1000, 20 * 1000));
+            Console.WriteLine($"启动完成，一共花费时间 {stopWatch.Elapsed.TotalSeconds}s");
+            stopWatch.Stop();
+            
+            
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
