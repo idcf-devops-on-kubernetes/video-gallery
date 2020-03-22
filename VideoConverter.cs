@@ -38,29 +38,7 @@ namespace VideoGallery
                 .SetOutput(outputGifPath);
               
             await conversion.Start().ConfigureAwait(false);
-            
-            var _ = Task.Factory.StartNew(() =>  ConsumeCPU(90, 30));
         }
-        
-        public static void ConsumeCPU(int percentage, int seconds)
-        {
-            if (percentage < 0 || percentage > 100)
-                throw new ArgumentException("percentage");
-            var watch = new Stopwatch();
-            var watch2 = new Stopwatch();
-            watch.Start();            
-            watch2.Start();
-            while (watch2.ElapsedMilliseconds < seconds * 1000)
-            {
-                if (watch.ElapsedMilliseconds > percentage)
-                {
-                    Thread.Sleep(100 - percentage);
-                    watch.Reset();
-                    watch.Start();
-                }
-            }
-        }
-
         
     }
 }
