@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Video Gallery</title>
+    <style>
+        .preview {width: 240px; height: 160px; margin: 30px;}
+    </style>
+</head>
+<body style="margin: 20px 20px">
+    <div style="width: 50%; float: left;">
+        <h1>Video Gallery</h1>
+        <div id="video-list">
+            
+        </div>
+    </div>
+    <div style="width: 50%; float: right">
+        <p>上传新的视频</p>
+        
+        <p><input id="video-file" accept="video/mp4" type="file" /></p>
+        
+        <p>        <span id="status">就绪</span>
+        </p>
+    </div>
+
+<script>
+    (function () {
+        function upload() {
+            var fileInput = document.getElementById('video-file');
+            if(!fileInput.files.length){
+                return;
+            }
+            var status = document.getElementById('status');
+            status.innerHTML = '上传中';
+            document.getElementById('video-file').setAttribute('disabled', 'disabled');
+            
+            var file = fileInput.files[0];
+            var formData = new FormData();
+            formData.append("video", file);
+            
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/upload");
+            xhr.send(formData);
+            xhr.onload = function (ev) {
+                var status = document.getElementById('status');
+                status.innerHTML = '就绪';
+                document.getElementById('video-file').value = null;
+                document.getElementById('video-file').removeAttribute('disabled');
+            }
+        }
+        
+        function refresh() {
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                var videoList = JSON.parse(this.responseText);
+                
+                var list = document.getElementById('video-list');
+                while(list.children.length){
+                    list.removeChild(list.children[list.children.length - 1]);
+                }
+                
+                videoList.forEach(function (item) {
+                    var img = document.createElement('IMG');
+                    img.src = '/gif?video=' + item.id;
+                    img.className = 'preview';
+                    img.setAttribute('alt', item.title);
+                    img.setAttribute('title', item.title);
+                    
+                    list.appendChild(img);
+                });
+            };
+            xhr.open("GET", "/videos");
+            xhr.send(null);
+        }
+
+        refresh();
+        setInterval(refresh, 3000);
+        document.getElementById('video-file').addEventListener('change', upload, false);
+    })();    
+    
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Xabe.FFMpeg" Version="3.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="index.html" />
+    <EmbeddedResource Include="index.html" />
+  </ItemGroup>
+
+</Project>
