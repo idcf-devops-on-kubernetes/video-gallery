@@ -33,6 +33,7 @@ namespace VideoGallery
                 {
                     webBuilder.UseStartup<Startup>().UseKestrel(options =>
                     {
+                        options.Limits.KeepAliveTimeout = TimeSpan.FromSeconds(1);
                         options.Limits.MaxRequestBodySize = 1024 * 1024 * 100; // 100 MB
                     });
                 })
