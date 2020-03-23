@@ -4,17 +4,20 @@
     <meta charset="UTF-8">
     <title>Video Gallery</title>
     <style>
-        .preview {width: 240px; height: 160px; margin: 30px;}
+        .preview { width: 240px; height: 160px; margin: 30px; position: relative;float:left; }
+        .preview img { width: 240px; height: 160px;}
+        .duration { position: absolute; display: inline-block; bottom: 0px; right: 0px; width: 40px; padding: 5px; color: white; background-color: black;}
+        #status { color: darkgray}
     </style>
 </head>
 <body style="margin: 20px 20px">
-    <div style="width: 50%; float: left;">
+    <div style="width: 70%; float: left;">
         <h1>Video Gallery</h1>
         <div id="video-list">
             
         </div>
     </div>
-    <div style="width: 50%; float: right">
+    <div style="width: 30%; float: right;margin-top: 100px;">
         <p>上传新的视频</p>
         
         <p><input id="video-file" accept="video/mp4" type="file" /></p>
@@ -60,17 +63,39 @@
                 }
                 
                 videoList.forEach(function (item) {
+                    var div = document.createElement('div');
+                    div.className = 'preview';
+                    list.appendChild(div);
+                    
                     var img = document.createElement('IMG');
                     img.src = '/gif?video=' + item.id;
-                    img.className = 'preview';
                     img.setAttribute('alt', item.title);
                     img.setAttribute('title', item.title);
+                    div.appendChild(img);
                     
-                    list.appendChild(img);
+                    if(item.duration){
+                        var duration = document.createElement('span');
+                        duration.className = 'duration';
+                        duration.innerHTML = convertToText(item.duration);
+                        div.appendChild(duration);
+                    }
                 });
             };
             xhr.open("GET", "/videos");
             xhr.send(null);
+            
+            function convertToText(duration) {
+                if(duration === 0){
+                    return '0:0';
+                }
+                
+                var minute = Math.floor(duration / 60);
+                var minText = minute < 10 ? ('0' + minute) : ('' + minute);
+                var second = duration - minute * 60;
+                var secondText = second < 10 ? ('0' + second) : ('' + second);
+                
+                return minText + ':' + secondText;
+            }
         }
 
         refresh();

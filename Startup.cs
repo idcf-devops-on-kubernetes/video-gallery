@@ -26,8 +26,7 @@ namespace VideoGallery
             Thread.Sleep(new Random().Next(8 * 1000, 20 * 1000));
             Console.WriteLine($"启动完成，一共花费时间 {stopWatch.Elapsed.TotalSeconds}s");
             stopWatch.Stop();
-            
-            
+       
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
@@ -76,7 +75,16 @@ namespace VideoGallery
                     }
                     
                     var videoRecordContent = await File.ReadAllTextAsync(videoRecordPath);
-                    await context.Response.WriteAsync(videoRecordContent);
+                    var videos = JsonConvert.DeserializeObject<List<VideoRecord>>(videoRecordContent);
+                    foreach (var videoRecord in videos)
+                    {
+                        var durationFile = Path.Combine(storageBasePath, "duration", videoRecord.id + ".txt");
+                        if (File.Exists(durationFile))
+                        {
+                            videoRecord.duration =  int.Parse(File.ReadAllText(durationFile));
+                        }
+                    }
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(videos));
                 });
                 
                 endpoints.MapGet("/gif", async context =>
@@ -121,6 +129,7 @@ namespace VideoGallery
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(mappedPath));
                 Directory.CreateDirectory(Path.Combine(storageBasePath, "gif"));
+                Directory.CreateDirectory(Path.Combine(storageBasePath, "duration"));
             }
 
             await using var saveAsVideoFile = new FileStream(mappedPath, FileMode.Create);
@@ -128,7 +137,9 @@ namespace VideoGallery
             
             await using var readStream = file.OpenReadStream();
             await readStream.CopyToAsync(saveAsVideoFile);
-            var _ = VideoConverter.ConvertToGif(mappedPath, Path.Combine(storageBasePath, "gif", $"{videoId}.gif"));
+            var _ = VideoConverter.ConvertToGif(mappedPath, 
+                Path.Combine(storageBasePath, "gif", $"{videoId}.gif"),
+                Path.Combine(storageBasePath, "duration", $"{videoId}.txt"));
         }
 
         private static async Task SaveVideoRecord(string storageBasePath, VideoRecord videoRecord)
@@ -156,5 +167,6 @@ namespace VideoGallery
         
         public string title { get; set; }
         
+        public int duration { get; set; }
     }
 }
