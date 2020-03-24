@@ -23,16 +23,19 @@ namespace VideoGallery
             Console.WriteLine("应用正在启动中，请稍后...");
             var stopWatch = new Stopwatch();
             stopWatch.Start();
-            Thread.Sleep(new Random().Next(8 * 1000, 20 * 1000));
+            if (Environment.GetEnvironmentVariable("ASPNET_ENVIRONMENT") == "Development")
+            {
+                Thread.Sleep(new Random().Next(8 * 1000, 20 * 1000));
+            }
             Console.WriteLine($"启动完成，一共花费时间 {stopWatch.Elapsed.TotalSeconds}s");
             stopWatch.Stop();
-       
+
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>().UseKestrel(options =>
                     {
-                        options.Limits.KeepAliveTimeout = TimeSpan.FromSeconds(1);
+                        options.Limits.KeepAliveTimeout = TimeSpan.FromSeconds(20);
                         options.Limits.MaxRequestBodySize = 1024 * 1024 * 100; // 100 MB
                     });
                 })
@@ -98,6 +101,7 @@ namespace VideoGallery
                         return;
                     }
                     
+                    context.Response.Headers.Add("Cache-Control", "max-age=86400; public");
                     context.Response.ContentType = "image/gif";
                     await context.Response.SendFileAsync(mappedPath);
                 }); 
